@@ -43,7 +43,7 @@ param vmName string = 'azattack-vm'
 @description('Security Type of the Virtual Machine.')
 param securityType string = 'TrustedLaunch'
 
-var storageAccountName = '${prefix}sa'
+var storageAccountName = '$azattacksa'
 var nicName = '${prefix}nic'
 var addressPrefix = '10.0.0.0/16'
 var subnetName = 'Subnet'
