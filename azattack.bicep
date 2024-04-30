@@ -6,7 +6,7 @@ param prefix string = 'azattack-'
 param location string = 'centralus'
 
 @description('Username for the Virtual Machine.')
-param adminUsername string = '${prefix}vmadmin'
+param adminUsername string = 'vmadmin'
 
 @description('Password for the Virtual Machine.')
 @secure()
@@ -19,7 +19,7 @@ param vmName string = 'azattack-vm'
 param dnsLabel string = 'azattack'
 
 @description('Name for the Public IP used to access the Virtual Machine.')
-param publicIpName string = '${prefix}-pip'
+param publicIpName string = 'pip'
 
 @description('Allocation method for the Public IP used to access the Virtual Machine.')
 @allowed([

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "3120714443138905941"
+      "templateHash": "506886060888086728"
     }
   },
   "parameters": {
@@ -25,7 +25,7 @@
     },
     "adminUsername": {
       "type": "string",
-      "defaultValue": "[format('{0}vmadmin', parameters('prefix'))]",
+      "defaultValue": "vmadmin",
       "metadata": {
         "description": "Username for the Virtual Machine."
       }
@@ -52,7 +52,7 @@
     },
     "publicIpName": {
       "type": "string",
-      "defaultValue": "[format('{0}-pip', parameters('prefix'))]",
+      "defaultValue": "pip",
       "metadata": {
         "description": "Name for the Public IP used to access the Virtual Machine."
       }
