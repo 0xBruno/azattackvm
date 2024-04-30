@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "10375030381087014450"
+      "templateHash": "4270168807669299640"
     }
   },
   "parameters": {
@@ -59,7 +59,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "8838957174180459190"
+              "templateHash": "13553192726411180055"
             }
           },
           "parameters": {
@@ -154,7 +154,7 @@
             }
           },
           "variables": {
-            "storageAccountName": "$azattacksa",
+            "storageAccountName": "azattacksa",
             "nicName": "[format('{0}nic', parameters('prefix'))]",
             "addressPrefix": "10.0.0.0/16",
             "subnetName": "Subnet",
