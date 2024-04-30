@@ -1,373 +1,259 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "4270168807669299640"
+      "templateHash": "9151992182981330717"
     }
   },
   "parameters": {
+    "prefix": {
+      "type": "string"
+    },
     "location": {
-      "type": "string",
-      "defaultValue": "centralus",
-      "metadata": {
-        "description": "Specifies the location for resources."
-      }
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "vmName": {
+      "type": "string"
+    },
+    "dnsLabel": {
+      "type": "string"
+    },
+    "publicIpName": {
+      "type": "string"
+    },
+    "publicIPAllocationMethod": {
+      "type": "string"
+    },
+    "publicIpSku": {
+      "type": "string"
+    },
+    "OSVersion": {
+      "type": "string"
+    },
+    "vmSize": {
+      "type": "string"
+    },
+    "securityType": {
+      "type": "string"
     }
   },
   "variables": {
-    "prefix": "azattack-",
-    "rgName": "[format('{0}rg', variables('prefix'))]"
+    "storageAccountName": "azattacksa",
+    "nicName": "[format('{0}nic', parameters('prefix'))]",
+    "addressPrefix": "10.0.0.0/16",
+    "subnetName": "Subnet",
+    "subnetPrefix": "10.0.0.0/24",
+    "virtualNetworkName": "[format('{0}vnet', parameters('prefix'))]",
+    "networkSecurityGroupName": "[format('{0}nsg', parameters('prefix'))]",
+    "securityProfileJson": {
+      "uefiSettings": {
+        "secureBootEnabled": true,
+        "vTpmEnabled": true
+      },
+      "securityType": "[parameters('securityType')]"
+    },
+    "extensionName": "GuestAttestation",
+    "extensionPublisher": "Microsoft.Azure.Security.WindowsAttestation",
+    "extensionVersion": "1.0",
+    "maaTenantName": "GuestAttestation",
+    "maaEndpoint": "[substring('emptyString', 0, 0)]"
   },
   "resources": [
     {
-      "type": "Microsoft.Resources/resourceGroups",
-      "apiVersion": "2023-07-01",
-      "name": "[variables('rgName')]",
-      "location": "[parameters('location')]"
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-05-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "Storage"
     },
     {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "azattackDeployment",
-      "resourceGroup": "[variables('rgName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2022-05-01",
+      "name": "[parameters('publicIpName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('publicIpSku')]"
+      },
       "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
+        "publicIPAllocationMethod": "[parameters('publicIPAllocationMethod')]",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('dnsLabel')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2022-05-01",
+      "name": "[variables('networkSecurityGroupName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "default-allow-3389",
+            "properties": {
+              "priority": 1000,
+              "access": "Allow",
+              "direction": "Inbound",
+              "destinationPortRange": "3389",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-05-01",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('addressPrefix')]"
+          ]
         },
-        "mode": "Incremental",
-        "parameters": {
-          "prefix": {
-            "value": "[variables('prefix')]"
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2022-05-01",
+      "name": "[variables('nicName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('vmName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsDesktop",
+            "offer": "Windows-10",
+            "sku": "[parameters('OSVersion')]",
+            "version": "latest"
           },
-          "location": {
-            "value": "[parameters('location')]"
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
           },
-          "adminUsername": {
-            "value": "azattackadmin"
-          },
-          "adminPassword": {
-            "value": ""
+          "dataDisks": [
+            {
+              "diskSizeGB": 1023,
+              "lun": 0,
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2022-05-01').primaryEndpoints.blob]"
           }
         },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "13553192726411180055"
-            }
-          },
-          "parameters": {
-            "prefix": {
-              "type": "string",
-              "metadata": {
-                "description": "Specified the prefix for resources created"
-              }
-            },
-            "location": {
-              "type": "string",
-              "defaultValue": "centralus",
-              "metadata": {
-                "description": "Specifies the location for resources."
-              }
-            },
-            "adminUsername": {
-              "type": "string",
-              "metadata": {
-                "description": "Username for the Virtual Machine."
-              }
-            },
-            "adminPassword": {
-              "type": "securestring",
-              "metadata": {
-                "description": "Password for the Virtual Machine."
-              }
-            },
-            "dnsLabel": {
-              "type": "string",
-              "defaultValue": "[toLower(format('{0}{1}', parameters('prefix'), parameters('vmName')))]",
-              "metadata": {
-                "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
-              }
-            },
-            "publicIpName": {
-              "type": "string",
-              "defaultValue": "[format('{0}-pip', parameters('prefix'))]",
-              "metadata": {
-                "description": "Name for the Public IP used to access the Virtual Machine."
-              }
-            },
-            "publicIPAllocationMethod": {
-              "type": "string",
-              "defaultValue": "Dynamic",
-              "allowedValues": [
-                "Dynamic",
-                "Static"
-              ],
-              "metadata": {
-                "description": "Allocation method for the Public IP used to access the Virtual Machine."
-              }
-            },
-            "publicIpSku": {
-              "type": "string",
-              "defaultValue": "Basic",
-              "allowedValues": [
-                "Basic",
-                "Standard"
-              ],
-              "metadata": {
-                "description": "SKU for the Public IP used to access the Virtual Machine."
-              }
-            },
-            "OSVersion": {
-              "type": "string",
-              "defaultValue": "win10-22h2-pro-g2",
-              "metadata": {
-                "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
-              }
-            },
-            "vmSize": {
-              "type": "string",
-              "defaultValue": "Standard_B2s",
-              "metadata": {
-                "description": "Size of the virtual machine."
-              }
-            },
-            "vmName": {
-              "type": "string",
-              "defaultValue": "azattack-vm",
-              "metadata": {
-                "description": "Name of the virtual machine."
-              }
-            },
-            "securityType": {
-              "type": "string",
-              "defaultValue": "TrustedLaunch",
-              "metadata": {
-                "description": "Security Type of the Virtual Machine."
-              }
-            }
-          },
-          "variables": {
-            "storageAccountName": "azattacksa",
-            "nicName": "[format('{0}nic', parameters('prefix'))]",
-            "addressPrefix": "10.0.0.0/16",
-            "subnetName": "Subnet",
-            "subnetPrefix": "10.0.0.0/24",
-            "virtualNetworkName": "[format('{0}vnet', parameters('prefix'))]",
-            "networkSecurityGroupName": "[format('{0}nsg', parameters('prefix'))]",
-            "securityProfileJson": {
-              "uefiSettings": {
-                "secureBootEnabled": true,
-                "vTpmEnabled": true
-              },
-              "securityType": "[parameters('securityType')]"
-            },
-            "extensionName": "GuestAttestation",
-            "extensionPublisher": "Microsoft.Azure.Security.WindowsAttestation",
-            "extensionVersion": "1.0",
-            "maaTenantName": "GuestAttestation",
-            "maaEndpoint": "[substring('emptyString', 0, 0)]"
-          },
-          "resources": [
-            {
-              "type": "Microsoft.Storage/storageAccounts",
-              "apiVersion": "2022-05-01",
-              "name": "[variables('storageAccountName')]",
-              "location": "[parameters('location')]",
-              "sku": {
-                "name": "Standard_LRS"
-              },
-              "kind": "Storage"
-            },
-            {
-              "type": "Microsoft.Network/publicIPAddresses",
-              "apiVersion": "2022-05-01",
-              "name": "[parameters('publicIpName')]",
-              "location": "[parameters('location')]",
-              "sku": {
-                "name": "[parameters('publicIpSku')]"
-              },
-              "properties": {
-                "publicIPAllocationMethod": "[parameters('publicIPAllocationMethod')]",
-                "dnsSettings": {
-                  "domainNameLabel": "[parameters('dnsLabel')]"
-                }
-              }
-            },
-            {
-              "type": "Microsoft.Network/networkSecurityGroups",
-              "apiVersion": "2022-05-01",
-              "name": "[variables('networkSecurityGroupName')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "securityRules": [
-                  {
-                    "name": "default-allow-3389",
-                    "properties": {
-                      "priority": 1000,
-                      "access": "Allow",
-                      "direction": "Inbound",
-                      "destinationPortRange": "3389",
-                      "protocol": "Tcp",
-                      "sourcePortRange": "*",
-                      "sourceAddressPrefix": "*",
-                      "destinationAddressPrefix": "*"
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "type": "Microsoft.Network/virtualNetworks",
-              "apiVersion": "2022-05-01",
-              "name": "[variables('virtualNetworkName')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "addressSpace": {
-                  "addressPrefixes": [
-                    "[variables('addressPrefix')]"
-                  ]
-                },
-                "subnets": [
-                  {
-                    "name": "[variables('subnetName')]",
-                    "properties": {
-                      "addressPrefix": "[variables('subnetPrefix')]",
-                      "networkSecurityGroup": {
-                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-                      }
-                    }
-                  }
-                ]
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Network/networkInterfaces",
-              "apiVersion": "2022-05-01",
-              "name": "[variables('nicName')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "ipConfigurations": [
-                  {
-                    "name": "ipconfig1",
-                    "properties": {
-                      "privateIPAllocationMethod": "Dynamic",
-                      "publicIPAddress": {
-                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
-                      },
-                      "subnet": {
-                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
-                      }
-                    }
-                  }
-                ]
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Compute/virtualMachines",
-              "apiVersion": "2022-03-01",
-              "name": "[parameters('vmName')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "hardwareProfile": {
-                  "vmSize": "[parameters('vmSize')]"
-                },
-                "osProfile": {
-                  "computerName": "[parameters('vmName')]",
-                  "adminUsername": "[parameters('adminUsername')]",
-                  "adminPassword": "[parameters('adminPassword')]"
-                },
-                "storageProfile": {
-                  "imageReference": {
-                    "publisher": "MicrosoftWindowsDesktop",
-                    "offer": "Windows-10",
-                    "sku": "[parameters('OSVersion')]",
-                    "version": "latest"
-                  },
-                  "osDisk": {
-                    "createOption": "FromImage",
-                    "managedDisk": {
-                      "storageAccountType": "StandardSSD_LRS"
-                    }
-                  },
-                  "dataDisks": [
-                    {
-                      "diskSizeGB": 1023,
-                      "lun": 0,
-                      "createOption": "Empty"
-                    }
-                  ]
-                },
-                "networkProfile": {
-                  "networkInterfaces": [
-                    {
-                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
-                    }
-                  ]
-                },
-                "diagnosticsProfile": {
-                  "bootDiagnostics": {
-                    "enabled": true,
-                    "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2022-05-01').primaryEndpoints.blob]"
-                  }
-                },
-                "securityProfile": "[if(equals(parameters('securityType'), 'TrustedLaunch'), variables('securityProfileJson'), null())]"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-              ]
-            },
-            {
-              "condition": "[and(equals(parameters('securityType'), 'TrustedLaunch'), and(equals(variables('securityProfileJson').uefiSettings.secureBootEnabled, true()), equals(variables('securityProfileJson').uefiSettings.vTpmEnabled, true())))]",
-              "type": "Microsoft.Compute/virtualMachines/extensions",
-              "apiVersion": "2022-03-01",
-              "name": "[format('{0}/{1}', parameters('vmName'), variables('extensionName'))]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "publisher": "[variables('extensionPublisher')]",
-                "type": "[variables('extensionName')]",
-                "typeHandlerVersion": "[variables('extensionVersion')]",
-                "autoUpgradeMinorVersion": true,
-                "enableAutomaticUpgrade": true,
-                "settings": {
-                  "AttestationConfig": {
-                    "MaaSettings": {
-                      "maaEndpoint": "[variables('maaEndpoint')]",
-                      "maaTenantName": "[variables('maaTenantName')]"
-                    }
-                  }
-                }
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
-              ]
-            }
-          ],
-          "outputs": {
-            "hostname": {
-              "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName')), '2022-05-01').dnsSettings.fqdn]"
+        "securityProfile": "[if(equals(parameters('securityType'), 'TrustedLaunch'), variables('securityProfileJson'), null())]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    {
+      "condition": "[and(equals(parameters('securityType'), 'TrustedLaunch'), and(equals(variables('securityProfileJson').uefiSettings.secureBootEnabled, true()), equals(variables('securityProfileJson').uefiSettings.vTpmEnabled, true())))]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2022-03-01",
+      "name": "[format('{0}/{1}', parameters('vmName'), variables('extensionName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "[variables('extensionPublisher')]",
+        "type": "[variables('extensionName')]",
+        "typeHandlerVersion": "[variables('extensionVersion')]",
+        "autoUpgradeMinorVersion": true,
+        "enableAutomaticUpgrade": true,
+        "settings": {
+          "AttestationConfig": {
+            "MaaSettings": {
+              "maaEndpoint": "[variables('maaEndpoint')]",
+              "maaTenantName": "[variables('maaTenantName')]"
             }
           }
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('rgName'))]"
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
       ]
     }
-  ]
+  ],
+  "outputs": {
+    "hostname": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName')), '2022-05-01').dnsSettings.fqdn]"
+    }
+  }
 }

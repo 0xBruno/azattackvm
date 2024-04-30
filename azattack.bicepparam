@@ -1,4 +1,4 @@
-using 'main.bicep'
+using 'azattack.bicep'
 
 @description('Specified the prefix for resources created')
 param prefix = 'azattack-'
