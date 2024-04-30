@@ -1,16 +1,48 @@
-param prefix string
-param location string 
-param adminUsername string 
+
+@description('Specified the prefix for resources created')
+param prefix string = 'azattack-'
+
+@description('Specifies the location for resources.')
+param location string = 'centralus'
+
+@description('Username for the Virtual Machine.')
+param adminUsername string = '${prefix}vmadmin'
+
+@description('Password for the Virtual Machine.')
 @secure()
-param adminPassword string
-param vmName string
-param dnsLabel string 
-param publicIpName string 
-param publicIPAllocationMethod string
-param publicIpSku string
-param OSVersion string 
-param vmSize string 
-param securityType string 
+param adminPassword string 
+
+@description('Name of the virtual machine.')
+param vmName string = 'azattack-vm'
+
+@description('Unique DNS Name for the Public IP used to access the Virtual Machine.')
+param dnsLabel string = 'azattack'
+
+@description('Name for the Public IP used to access the Virtual Machine.')
+param publicIpName string = '${prefix}-pip'
+
+@description('Allocation method for the Public IP used to access the Virtual Machine.')
+@allowed([
+  'Dynamic'
+  'Static'
+])
+param publicIPAllocationMethod string = 'Dynamic'
+
+@description('SKU for the Public IP used to access the Virtual Machine.')
+@allowed([
+  'Basic'
+  'Standard'
+])
+param publicIpSku string = 'Basic'
+
+@description('The Windows version for the VM. This will pick a fully patched image of this given Windows version.')
+param OSVersion string = 'win10-22h2-pro-g2'
+
+@description('Size of the virtual machine.')
+param vmSize string = 'Standard_B2s'
+
+@description('Security Type of the Virtual Machine.')
+param securityType string = 'TrustedLaunch'
 
 var storageAccountName = 'azattacksa'
 var nicName = '${prefix}nic'

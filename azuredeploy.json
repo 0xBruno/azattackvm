@@ -5,45 +5,100 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "9151992182981330717"
+      "templateHash": "3120714443138905941"
     }
   },
   "parameters": {
     "prefix": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "azattack-",
+      "metadata": {
+        "description": "Specified the prefix for resources created"
+      }
     },
     "location": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "centralus",
+      "metadata": {
+        "description": "Specifies the location for resources."
+      }
     },
     "adminUsername": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "[format('{0}vmadmin', parameters('prefix'))]",
+      "metadata": {
+        "description": "Username for the Virtual Machine."
+      }
     },
     "adminPassword": {
-      "type": "securestring"
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machine."
+      }
     },
     "vmName": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "azattack-vm",
+      "metadata": {
+        "description": "Name of the virtual machine."
+      }
     },
     "dnsLabel": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "azattack",
+      "metadata": {
+        "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
+      }
     },
     "publicIpName": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "[format('{0}-pip', parameters('prefix'))]",
+      "metadata": {
+        "description": "Name for the Public IP used to access the Virtual Machine."
+      }
     },
     "publicIPAllocationMethod": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "Dynamic",
+      "allowedValues": [
+        "Dynamic",
+        "Static"
+      ],
+      "metadata": {
+        "description": "Allocation method for the Public IP used to access the Virtual Machine."
+      }
     },
     "publicIpSku": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "Standard"
+      ],
+      "metadata": {
+        "description": "SKU for the Public IP used to access the Virtual Machine."
+      }
     },
     "OSVersion": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "win10-22h2-pro-g2",
+      "metadata": {
+        "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
+      }
     },
     "vmSize": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "Standard_B2s",
+      "metadata": {
+        "description": "Size of the virtual machine."
+      }
     },
     "securityType": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "TrustedLaunch",
+      "metadata": {
+        "description": "Security Type of the Virtual Machine."
+      }
     }
   },
   "variables": {
