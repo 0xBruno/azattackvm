@@ -205,7 +205,8 @@ resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 }
 
 resource customscriptextension 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = {
-  name: '${vmName}cse'
+  parent: vm
+  name: 'cse'
   location: location
   properties: {
     publisher: 'Microsoft.Compute'

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "16218162380386240791"
+      "templateHash": "6139487535794883304"
     }
   },
   "parameters": {
@@ -284,7 +284,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2022-03-01",
-      "name": "[format('{0}cse', parameters('vmName'))]",
+      "name": "[format('{0}/{1}', parameters('vmName'), 'cse')]",
       "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.Compute",
@@ -297,7 +297,10 @@
           ],
           "commandToExecute": "powershell -ExecutionPolicy Bypass -File tools.ps1"
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+      ]
     }
   ],
   "outputs": {
