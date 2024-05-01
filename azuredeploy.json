@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "6139487535794883304"
+      "templateHash": "930015519080870188"
     }
   },
   "parameters": {
@@ -52,7 +52,7 @@
     },
     "vmName": {
       "type": "string",
-      "defaultValue": "[format('{0}-vm', parameters('prefix'))]",
+      "defaultValue": "azattack-vm",
       "metadata": {
         "description": "Name of the virtual machine."
       }

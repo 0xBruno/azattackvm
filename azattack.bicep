@@ -18,7 +18,7 @@ param adminUsername string = 'vmadmin'
 param adminPassword string 
 
 @description('Name of the virtual machine.')
-param vmName string = '${prefix}-vm'
+param vmName string = 'azattack-vm'
 
 @description('Custom Script Extension script URL for tools installation')
 param fileurl string = 'https://raw.githubusercontent.com/0xBruno/azattackvm/main/tools.ps1'
