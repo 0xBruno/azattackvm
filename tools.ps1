@@ -17,12 +17,8 @@ choco install microsoft-windows-terminal --pre -y
 # Create folder structure for pentest tools
 $folders = @(
     "$env:SystemDrive\Tools",
-    "$env:SystemDrive\Tools\Azure",
-    "$env:SystemDrive\Tools\Azure\Attack",
-    "$env:SystemDrive\Tools\Azure\Attack\BloodHound",
-    "$env:SystemDrive\Tools\Azure\Attack\StormSpotter",
-    "$env:SystemDrive\Tools\Azure\Assessment",
-    "$env:SystemDrive\Tools\Azure\VulnerableEnv"
+    "$env:SystemDrive\Tools\BloodHound",
+    "$env:SystemDrive\Tools\StormSpotter",
 )
 $folders | ForEach-Object { New-Item -ItemType Directory -Path $_ }
 
@@ -39,45 +35,45 @@ Install-Module -Name Microsoft.Graph -Force -AllowClobber
 Install-Module AADInternals -Force
 
 # Add MicroBurst
-git clone https://github.com/NetSPI/MicroBurst.git "$env:SystemDrive\Tools\Azure\Attack\MicroBurst"
+git clone https://github.com/NetSPI/MicroBurst.git "$env:SystemDrive\Tools\MicroBurst"
 
 # Add PowerZure
-git clone https://github.com/hausec/PowerZure.git "$env:SystemDrive\Tools\Azure\Attack\PowerZure"
+git clone https://github.com/hausec/PowerZure.git "$env:SystemDrive\Tools\PowerZure"
 
 # Add AzureHound
 Invoke-WebRequest -Uri "https://github.com/BloodHoundAD/AzureHound/releases/download/v2.0.4/azurehound-windows-amd64.zip" -OutFile "$env:SystemDrive\Downloads\AzureHound.zip"
-Expand-Archive -LiteralPath "$env:SystemDrive\Downloads\AzureHound.zip" -DestinationPath "$env:SystemDrive\Tools\Azure\Attack\AzureHound"
+Expand-Archive -LiteralPath "$env:SystemDrive\Downloads\AzureHound.zip" -DestinationPath "$env:SystemDrive\Tools\AzureHound"
 Remove-Item "$env:SystemDrive\Downloads\AzureHound.zip"
 
 # Add FuncoPop
-git clone https://github.com/NetSPI/FuncoPop.git "$env:SystemDrive\Tools\Azure\Attack\FuncoPop"
+git clone https://github.com/NetSPI/FuncoPop.git "$env:SystemDrive\Tools\FuncoPop"
 
 # Add BARK
-git clone https://github.com/BloodHoundAD/BARK "$env:SystemDrive\Tools\Azure\Attack\BARK"
+git clone https://github.com/BloodHoundAD/BARK "$env:SystemDrive\Tools\BARK"
 
 # Add CloudFox
-git clone https://github.com/BishopFox/cloudfox.git "$env:SystemDrive\Tools\Azure\Attack\cloudfox"
+git clone https://github.com/BishopFox/cloudfox.git "$env:SystemDrive\Tools\cloudfox"
 
 # Add SkyArk
-git clone https://github.com/cyberark/SkyArk "$env:SystemDrive\Tools\Azure\Attack\SkyArk"
+git clone https://github.com/cyberark/SkyArk "$env:SystemDrive\Tools\SkyArk"
 
 # Add MSOLSpray
-git clone https://github.com/dafthack/MSOLSpray "$env:SystemDrive\Tools\Azure\Attack\MSOLSpray"
+git clone https://github.com/dafthack/MSOLSpray "$env:SystemDrive\Tools\MSOLSpray"
 
 # Add Azure-AccessPermissions
-git clone https://github.com/csandker/Azure-AccessPermissions.git "$env:SystemDrive\Tools\Azure\Assessment\Azure-AccessPermissions"
+git clone https://github.com/csandker/Azure-AccessPermissions.git "$env:SystemDrive\Tools\Azure-AccessPermissions"
 
 # Add ScubaGear 
 Invoke-WebRequest -Uri "https://github.com/cisagov/ScubaGear/releases/download/0.3.0/ScubaGear-0.3.0.zip" -OutFile "$env:SystemDrive\Downloads\ScubaGear.zip"
-Expand-Archive -Path "$env:SystemDrive\Downloads\ScubaGear.zip" -DestinationPath "$env:SystemDrive\Tools\Azure\Assessment" -Force
-Get-ChildItem -Recurse "$env:SystemDrive\Tools\Azure\Assessment\ScubaGear-0.3.0" | Unblock-File
+Expand-Archive -Path "$env:SystemDrive\Downloads\ScubaGear.zip" -DestinationPath "$env:SystemDrive\Tools" -Force
+Get-ChildItem -Recurse "$env:SystemDrive\Tools\ScubaGear-0.3.0" | Unblock-File
 Remove-Item -Path "$env:SystemDrive\Downloads\ScubaGear.zip"
 
 # Add Stormspotter
-git clone https://github.com/Azure/Stormspotter/ "$env:SystemDrive\Tools\Azure\Attack\StormSpotter"
+git clone https://github.com/Azure/Stormspotter/ "$env:SystemDrive\Tools\StormSpotter"
 
 # Add ScoutSuite
-git clone https://github.com/nccgroup/ScoutSuite "$env:SystemDrive\Tools\Azure\Assessment\ScoutSuite"
+git clone https://github.com/nccgroup/ScoutSuite "$env:SystemDrive\Tools\ScoutSuite"
 
 
 # Disable IE First Run (Needed by some tools)
