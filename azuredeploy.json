@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "529646341150083719"
+      "templateHash": "16218162380386240791"
     }
   },
   "parameters": {
@@ -18,9 +18,9 @@
     },
     "location": {
       "type": "string",
-      "defaultValue": "centralus",
+      "defaultValue": "[resourceGroup().location]",
       "metadata": {
-        "description": "Specifies the location for resources."
+        "description": "Location for all resources."
       }
     },
     "publicIpName": {
@@ -52,9 +52,16 @@
     },
     "vmName": {
       "type": "string",
-      "defaultValue": "azattack-vm",
+      "defaultValue": "[format('{0}-vm', parameters('prefix'))]",
       "metadata": {
         "description": "Name of the virtual machine."
+      }
+    },
+    "fileurl": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/0xBruno/azattackvm/main/tools.ps1",
+      "metadata": {
+        "description": "Custom Script Extension script URL for tools installation"
       }
     },
     "publicIPAllocationMethod": {
@@ -115,12 +122,7 @@
         "vTpmEnabled": true
       },
       "securityType": "[parameters('securityType')]"
-    },
-    "extensionName": "GuestAttestation",
-    "extensionPublisher": "Microsoft.Azure.Security.WindowsAttestation",
-    "extensionVersion": "1.0",
-    "maaTenantName": "GuestAttestation",
-    "maaEndpoint": "[substring('emptyString', 0, 0)]"
+    }
   },
   "resources": [
     {
@@ -280,29 +282,22 @@
       ]
     },
     {
-      "condition": "[and(equals(parameters('securityType'), 'TrustedLaunch'), and(equals(variables('securityProfileJson').uefiSettings.secureBootEnabled, true()), equals(variables('securityProfileJson').uefiSettings.vTpmEnabled, true())))]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2022-03-01",
-      "name": "[format('{0}/{1}', parameters('vmName'), variables('extensionName'))]",
+      "name": "[format('{0}cse', parameters('vmName'))]",
       "location": "[parameters('location')]",
       "properties": {
-        "publisher": "[variables('extensionPublisher')]",
-        "type": "[variables('extensionName')]",
-        "typeHandlerVersion": "[variables('extensionVersion')]",
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.10",
         "autoUpgradeMinorVersion": true,
-        "enableAutomaticUpgrade": true,
         "settings": {
-          "AttestationConfig": {
-            "MaaSettings": {
-              "maaEndpoint": "[variables('maaEndpoint')]",
-              "maaTenantName": "[variables('maaTenantName')]"
-            }
-          }
+          "fileUris": [
+            "[parameters('fileurl')]"
+          ],
+          "commandToExecute": "powershell -ExecutionPolicy Bypass -File tools.ps1"
         }
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
-      ]
+      }
     }
   ],
   "outputs": {
