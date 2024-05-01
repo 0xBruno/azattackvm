@@ -1,8 +1,8 @@
 @description('Specified the prefix for resources created')
 param prefix string = 'azattack-'
 
-@description('Specifies the location for resources.')
-param location string = 'centralus'
+@description('Location for all resources.')
+param location string = resourceGroup().location
 
 @description('Name for the Public IP used to access the Virtual Machine.')
 param publicIpName string = 'pip'
@@ -18,7 +18,10 @@ param adminUsername string = 'vmadmin'
 param adminPassword string 
 
 @description('Name of the virtual machine.')
-param vmName string = 'azattack-vm'
+param vmName string = '${prefix}-vm'
+
+@description('Custom Script Extension script URL for tools installation')
+param fileurl string = 'https://raw.githubusercontent.com/0xBruno/azattackvm/main/tools.ps1'
 
 @description('Allocation method for the Public IP used to access the Virtual Machine.')
 @allowed([
@@ -43,6 +46,7 @@ param vmSize string = 'Standard_B2s'
 @description('Security Type of the Virtual Machine.')
 param securityType string = 'TrustedLaunch'
 
+
 var storageAccountName = 'azattacksa'
 var nicName = '${prefix}nic'
 var addressPrefix = '10.0.0.0/16'
@@ -57,11 +61,6 @@ var securityProfileJson = {
   }
   securityType: securityType
 }
-var extensionName = 'GuestAttestation'
-var extensionPublisher = 'Microsoft.Azure.Security.WindowsAttestation'
-var extensionVersion = '1.0'
-var maaTenantName = 'GuestAttestation'
-var maaEndpoint = substring('emptyString', 0, 0)
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   name: storageAccountName
@@ -205,26 +204,21 @@ resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   }
 }
 
-resource vmExtension 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' =
-  if ((securityType == 'TrustedLaunch') && ((securityProfileJson.uefiSettings.secureBootEnabled == true) && (securityProfileJson.uefiSettings.vTpmEnabled == true))) {
-    parent: vm
-    name: extensionName
-    location: location
-    properties: {
-      publisher: extensionPublisher
-      type: extensionName
-      typeHandlerVersion: extensionVersion
-      autoUpgradeMinorVersion: true
-      enableAutomaticUpgrade: true
-      settings: {
-        AttestationConfig: {
-          MaaSettings: {
-            maaEndpoint: maaEndpoint
-            maaTenantName: maaTenantName
-          }
-        }
-      }
+resource customscriptextension 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = {
+  name: '${vmName}cse'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Compute'
+    type: 'CustomScriptExtension'
+    typeHandlerVersion: '1.10'
+    autoUpgradeMinorVersion: true
+    settings: {
+      fileUris: [
+        fileurl
+      ]
+      commandToExecute: 'powershell -ExecutionPolicy Bypass -File tools.ps1'
     }
   }
+}
 
 output hostname string = publicIp.properties.dnsSettings.fqdn
