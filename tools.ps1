@@ -11,6 +11,7 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocola
 
 # Install CLI tools and SDKs using chocolatey
 choco install azure-cli az.powershell terraform pulumi nodejs.install docker-desktop go rust -y
+choco install git.install -y 
 choco install miniconda3 --version=4.12.0 --params="'/AddToPath:1 /InstallationType:AllUsers /RegisterPython:1'" -y
 choco install microsoft-windows-terminal --pre -y
 
@@ -18,7 +19,7 @@ choco install microsoft-windows-terminal --pre -y
 $folders = @(
     "$env:SystemDrive\Tools",
     "$env:SystemDrive\Tools\BloodHound",
-    "$env:SystemDrive\Tools\StormSpotter",
+    "$env:SystemDrive\Tools\StormSpotter"
 )
 $folders | ForEach-Object { New-Item -ItemType Directory -Path $_ }
 
