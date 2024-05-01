@@ -16,10 +16,10 @@ param adminPassword string
 param vmName string = 'azattack-vm'
 
 @description('Unique DNS Name for the Public IP used to access the Virtual Machine.')
-param dnsLabel string = '${prefix}${newGuid()}'
+param dnsLabel string = newGuid()
 
 @description('Name for the Public IP used to access the Virtual Machine.')
-param publicIpName string = '${prefix}pip'
+param publicIpName string = 'pip'
 
 @description('Allocation method for the Public IP used to access the Virtual Machine.')
 @allowed([
