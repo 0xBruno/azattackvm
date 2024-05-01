@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "11113130233074375425"
+      "templateHash": "529646341150083719"
     }
   },
   "parameters": {
@@ -21,6 +21,20 @@
       "defaultValue": "centralus",
       "metadata": {
         "description": "Specifies the location for resources."
+      }
+    },
+    "publicIpName": {
+      "type": "string",
+      "defaultValue": "pip",
+      "metadata": {
+        "description": "Name for the Public IP used to access the Virtual Machine."
+      }
+    },
+    "dnsLabel": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
     },
     "adminUsername": {
@@ -41,24 +55,6 @@
       "defaultValue": "azattack-vm",
       "metadata": {
         "description": "Name of the virtual machine."
-      }
-    },
-    "guidValue": {
-      "type": "string",
-      "defaultValue": "[newGuid()]",
-      "metadata": {
-        "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
-      }
-    },
-    "dnsLabel": {
-      "type": "string",
-      "defaultValue": "[format('{0}{1}', parameters('prefix'), parameters('guidValue'))]"
-    },
-    "publicIpName": {
-      "type": "string",
-      "defaultValue": "pip",
-      "metadata": {
-        "description": "Name for the Public IP used to access the Virtual Machine."
       }
     },
     "publicIPAllocationMethod": {

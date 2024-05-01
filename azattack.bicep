@@ -1,9 +1,14 @@
-
 @description('Specified the prefix for resources created')
 param prefix string = 'azattack-'
 
 @description('Specifies the location for resources.')
 param location string = 'centralus'
+
+@description('Name for the Public IP used to access the Virtual Machine.')
+param publicIpName string = 'pip'
+
+@description('Unique DNS Name for the Public IP used to access the Virtual Machine.')
+param dnsLabel string = ''
 
 @description('Username for the Virtual Machine.')
 param adminUsername string = 'vmadmin'
@@ -14,13 +19,6 @@ param adminPassword string
 
 @description('Name of the virtual machine.')
 param vmName string = 'azattack-vm'
-
-@description('Unique DNS Name for the Public IP used to access the Virtual Machine.')
-param guidValue string = newGuid()
-param dnsLabel string = '${prefix}${guidValue}'
-
-@description('Name for the Public IP used to access the Virtual Machine.')
-param publicIpName string = 'pip'
 
 @description('Allocation method for the Public IP used to access the Virtual Machine.')
 @allowed([
