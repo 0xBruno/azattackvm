@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "4300725757922300301"
+      "templateHash": "6475484925164241517"
     }
   },
   "parameters": {
@@ -45,14 +45,14 @@
     },
     "dnsLabel": {
       "type": "string",
-      "defaultValue": "[format('{0}{1}', parameters('prefix'), newGuid())]",
+      "defaultValue": "[newGuid()]",
       "metadata": {
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
     },
     "publicIpName": {
       "type": "string",
-      "defaultValue": "[format('{0}pip', parameters('prefix'))]",
+      "defaultValue": "pip",
       "metadata": {
         "description": "Name for the Public IP used to access the Virtual Machine."
       }
