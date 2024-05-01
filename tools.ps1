@@ -36,10 +36,10 @@ Install-Module -Name Microsoft.Graph -Force -AllowClobber
 Install-Module AADInternals -Force
 
 # Add MicroBurst
-git clone https://github.com/NetSPI/MicroBurst.git "$env:SystemDrive\Tools\MicroBurst"
+& 'C:\Program Files\Git\bin\git.exe' clone https://github.com/NetSPI/MicroBurst.git "$env:SystemDrive\Tools\MicroBurst"
 
 # Add PowerZure
-git clone https://github.com/hausec/PowerZure.git "$env:SystemDrive\Tools\PowerZure"
+& 'C:\Program Files\Git\bin\git.exe' clone https://github.com/hausec/PowerZure.git "$env:SystemDrive\Tools\PowerZure"
 
 # Add AzureHound
 Invoke-WebRequest -Uri "https://github.com/BloodHoundAD/AzureHound/releases/download/v2.0.4/azurehound-windows-amd64.zip" -OutFile "$env:SystemDrive\Downloads\AzureHound.zip"
@@ -47,22 +47,22 @@ Expand-Archive -LiteralPath "$env:SystemDrive\Downloads\AzureHound.zip" -Destina
 Remove-Item "$env:SystemDrive\Downloads\AzureHound.zip"
 
 # Add FuncoPop
-git clone https://github.com/NetSPI/FuncoPop.git "$env:SystemDrive\Tools\FuncoPop"
+& 'C:\Program Files\Git\bin\git.exe' clone https://github.com/NetSPI/FuncoPop.git "$env:SystemDrive\Tools\FuncoPop"
 
 # Add BARK
-git clone https://github.com/BloodHoundAD/BARK "$env:SystemDrive\Tools\BARK"
+& 'C:\Program Files\Git\bin\git.exe' clone https://github.com/BloodHoundAD/BARK "$env:SystemDrive\Tools\BARK"
 
 # Add CloudFox
-git clone https://github.com/BishopFox/cloudfox.git "$env:SystemDrive\Tools\cloudfox"
+& 'C:\Program Files\Git\bin\git.exe' clone https://github.com/BishopFox/cloudfox.git "$env:SystemDrive\Tools\cloudfox"
 
 # Add SkyArk
-git clone https://github.com/cyberark/SkyArk "$env:SystemDrive\Tools\SkyArk"
+& 'C:\Program Files\Git\bin\git.exe' clone https://github.com/cyberark/SkyArk "$env:SystemDrive\Tools\SkyArk"
 
 # Add MSOLSpray
-git clone https://github.com/dafthack/MSOLSpray "$env:SystemDrive\Tools\MSOLSpray"
+& 'C:\Program Files\Git\bin\git.exe' clone https://github.com/dafthack/MSOLSpray "$env:SystemDrive\Tools\MSOLSpray"
 
 # Add Azure-AccessPermissions
-git clone https://github.com/csandker/Azure-AccessPermissions.git "$env:SystemDrive\Tools\Azure-AccessPermissions"
+& 'C:\Program Files\Git\bin\git.exe' clone https://github.com/csandker/Azure-AccessPermissions.git "$env:SystemDrive\Tools\Azure-AccessPermissions"
 
 # Add ScubaGear 
 Invoke-WebRequest -Uri "https://github.com/cisagov/ScubaGear/releases/download/0.3.0/ScubaGear-0.3.0.zip" -OutFile "$env:SystemDrive\Downloads\ScubaGear.zip"
@@ -71,10 +71,10 @@ Get-ChildItem -Recurse "$env:SystemDrive\Tools\ScubaGear-0.3.0" | Unblock-File
 Remove-Item -Path "$env:SystemDrive\Downloads\ScubaGear.zip"
 
 # Add Stormspotter
-git clone https://github.com/Azure/Stormspotter/ "$env:SystemDrive\Tools\StormSpotter"
+& 'C:\Program Files\Git\bin\git.exe' clone https://github.com/Azure/Stormspotter/ "$env:SystemDrive\Tools\StormSpotter"
 
 # Add ScoutSuite
-git clone https://github.com/nccgroup/ScoutSuite "$env:SystemDrive\Tools\ScoutSuite"
+& 'C:\Program Files\Git\bin\git.exe' clone https://github.com/nccgroup/ScoutSuite "$env:SystemDrive\Tools\ScoutSuite"
 
 
 # Disable IE First Run (Needed by some tools)
