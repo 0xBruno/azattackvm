@@ -16,7 +16,7 @@ param adminPassword string
 param vmName string = 'azattack-vm'
 
 @description('Unique DNS Name for the Public IP used to access the Virtual Machine.')
-param dnsLabel string = 'azattack'
+param dnsLabel string = 'azattack-${newGuid()}'
 
 @description('Name for the Public IP used to access the Virtual Machine.')
 param publicIpName string = 'pip'
